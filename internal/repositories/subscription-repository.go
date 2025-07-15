@@ -17,7 +17,7 @@ type SubscriptionRepository struct {
 	DB *gorm.DB
 }
 
-func NewSubscriptionRepository(db *gorm.DB) *SubscriptionRepository {
+func NewSubscriptionRepository(db *gorm.DB) SubscriptionRepositoryInterface {
 	return &SubscriptionRepository{
 		DB: db,
 	}
