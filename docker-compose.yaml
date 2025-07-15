@@ -1,0 +1,11 @@
+services:
+  postgres:
+    image: postgres:latest
+    restart: unless-stopped
+    container_name: em_postgres_container
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: secret
+      POSTGRES_DB: effective-mobile
+    ports:
+      - "5432:5432"
