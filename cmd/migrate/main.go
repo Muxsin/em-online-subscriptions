@@ -14,7 +14,7 @@ func main() {
 
 	db := database.Connect()
 
-	err := db.AutoMigrate(&models.OnlineSubscription{})
+	err := db.AutoMigrate(&models.Subscription{})
 	if err != nil {
 		panic(err)
 	}

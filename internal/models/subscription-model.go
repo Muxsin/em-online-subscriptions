@@ -6,7 +6,7 @@ import (
 	"time"
 )
 
-type OnlineSubscription struct {
+type Subscription struct {
 	gorm.Model
 
 	ServiceName string     `json:"service_name"`

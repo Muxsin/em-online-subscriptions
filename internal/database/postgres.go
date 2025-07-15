@@ -10,7 +10,6 @@ import (
 func Connect() *gorm.DB {
 	db, err := gorm.Open(postgres.Open(os.Getenv("DSN_POSTGRES")), &gorm.Config{})
 	if err != nil {
-		log.Printf("database connection error: %v", err)
 		panic(err)
 	}
 
