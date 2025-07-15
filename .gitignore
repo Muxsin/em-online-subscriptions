@@ -1,0 +1,11 @@
+.env
+
+**/*.sum
+*.exe
+*.out
+
+.vscode/
+.idea/
+
+data
+letsencrypt
