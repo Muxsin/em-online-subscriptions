@@ -8,7 +8,7 @@ import (
 type SubscriptionRepositoryInterface interface {
 	Insert(subscription *models.Subscription) error
 	List() ([]*models.Subscription, error)
-	GetByID(id uint) (*models.Subscription, error)
+	GetByID(id string) (*models.Subscription, error)
 	Update(subscription *models.Subscription) error
 	Delete(subscription *models.Subscription) error
 }
@@ -35,7 +35,7 @@ func (repository *SubscriptionRepository) List() ([]*models.Subscription, error)
 	return subscriptions, err
 }
 
-func (repository *SubscriptionRepository) GetByID(id uint) (*models.Subscription, error) {
+func (repository *SubscriptionRepository) GetByID(id string) (*models.Subscription, error) {
 	var subscription models.Subscription
 
 	err := repository.DB.First(&subscription, id).Error

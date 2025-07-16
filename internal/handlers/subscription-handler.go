@@ -100,7 +100,30 @@ func (h *SubscriptionHandler) List(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, response)
 }
 
-func (h *SubscriptionHandler) GetByID(ctx *gin.Context) {}
+func (h *SubscriptionHandler) GetByID(ctx *gin.Context) {
+	product, err := h.Repository.GetByID(ctx.Param("id"))
+
+	if err != nil {
+		log.Printf("Error getting subscription: %v", err)
+
+		ctx.JSON(http.StatusNotFound, gin.H{
+			"error": "Subscription not found",
+		})
+		return
+	}
+
+	response := responses.SubscriptionResponse{
+		ID:          product.ID,
+		ServiceName: product.ServiceName,
+		Price:       product.Price,
+		UserID:      product.UserID,
+		StartDate:   product.StartDate,
+		EndDate:     product.EndDate,
+		CreatedAt:   product.CreatedAt.Format(time.RFC3339),
+	}
+
+	ctx.JSON(http.StatusOK, response)
+}
 
 func (h *SubscriptionHandler) Update(ctx *gin.Context) {}
 
