@@ -176,4 +176,26 @@ func (h *SubscriptionHandler) Update(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, response)
 }
 
-func (h *SubscriptionHandler) Delete(ctx *gin.Context) {}
+func (h *SubscriptionHandler) Delete(ctx *gin.Context) {
+	subscription, err := h.Repository.GetByID(ctx.Param("id"))
+
+	if err != nil {
+		log.Printf("Error getting subscription: %v", err)
+
+		ctx.JSON(http.StatusNotFound, gin.H{
+			"error": "Subscription not found",
+		})
+		return
+	}
+
+	if err := h.Repository.Delete(subscription); err != nil {
+		log.Printf("Error deleting subscription: %v", err)
+
+		ctx.JSON(http.StatusInternalServerError, gin.H{
+			"error": "Error deleting subscription",
+		})
+		return
+	}
+
+	ctx.Status(http.StatusOK)
+}
