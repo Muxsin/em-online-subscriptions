@@ -33,6 +33,8 @@ func (h *SubscriptionHandler) Create(ctx *gin.Context) {
 	var request requests.CreateSubscriptionRequest
 
 	if err := ctx.ShouldBindBodyWithJSON(&request); err != nil {
+		log.Print(err.Error())
+
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"error": err.Error(),
 		})
@@ -40,7 +42,7 @@ func (h *SubscriptionHandler) Create(ctx *gin.Context) {
 	}
 
 	subscription := &models.Subscription{
-		ServiceName: request.ServerName,
+		ServiceName: request.ServiceName,
 		Price:       request.Price,
 		UserID:      request.UserID,
 		StartDate:   request.StartDate,
@@ -69,7 +71,34 @@ func (h *SubscriptionHandler) Create(ctx *gin.Context) {
 	ctx.JSON(http.StatusCreated, response)
 }
 
-func (h *SubscriptionHandler) List(ctx *gin.Context) {}
+func (h *SubscriptionHandler) List(ctx *gin.Context) {
+	products, err := h.Repository.List()
+
+	if err != nil {
+		log.Printf("Error listing subscriptions: %v", err)
+
+		ctx.JSON(http.StatusInternalServerError, gin.H{
+			"error": "Error listing subscriptions",
+		})
+		return
+	}
+
+	var response []responses.SubscriptionResponse
+
+	for _, product := range products {
+		response = append(response, responses.SubscriptionResponse{
+			ID:          product.ID,
+			ServiceName: product.ServiceName,
+			Price:       product.Price,
+			UserID:      product.UserID,
+			StartDate:   product.StartDate,
+			EndDate:     product.EndDate,
+			CreatedAt:   product.CreatedAt.Format(time.RFC3339),
+		})
+	}
+
+	ctx.JSON(http.StatusOK, response)
+}
 
 func (h *SubscriptionHandler) GetByID(ctx *gin.Context) {}
 
