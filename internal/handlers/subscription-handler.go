@@ -125,6 +125,55 @@ func (h *SubscriptionHandler) GetByID(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, response)
 }
 
-func (h *SubscriptionHandler) Update(ctx *gin.Context) {}
+func (h *SubscriptionHandler) Update(ctx *gin.Context) {
+	subscription, err := h.Repository.GetByID(ctx.Param("id"))
+
+	if err != nil {
+		log.Printf("Error getting subscription: %v", err)
+
+		ctx.JSON(http.StatusNotFound, gin.H{
+			"error": "Subscription not found",
+		})
+		return
+	}
+
+	var request requests.UpdateSubscriptionRequest
+
+	if err := ctx.ShouldBindJSON(&request); err != nil {
+		log.Print(err.Error())
+
+		ctx.JSON(http.StatusBadRequest, gin.H{
+			"error": err.Error(),
+		})
+		return
+	}
+
+	subscription.UserID = request.UserID
+	subscription.ServiceName = request.ServiceName
+	subscription.Price = request.Price
+	subscription.StartDate = request.StartDate
+	subscription.EndDate = request.EndDate
+
+	if err := h.Repository.Update(subscription); err != nil {
+		log.Printf("Error updating subscription: %v", err)
+
+		ctx.JSON(http.StatusInternalServerError, gin.H{
+			"error": "Error updating subscription",
+		})
+		return
+	}
+
+	response := responses.SubscriptionResponse{
+		ID:          subscription.ID,
+		ServiceName: subscription.ServiceName,
+		Price:       subscription.Price,
+		UserID:      subscription.UserID,
+		StartDate:   subscription.StartDate,
+		EndDate:     subscription.EndDate,
+		CreatedAt:   subscription.CreatedAt.Format(time.RFC3339),
+	}
+
+	ctx.JSON(http.StatusOK, response)
+}
 
 func (h *SubscriptionHandler) Delete(ctx *gin.Context) {}
