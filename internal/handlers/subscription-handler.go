@@ -17,6 +17,7 @@ type SubscriptionHandlerInterface interface {
 	GetByID(ctx *gin.Context)
 	Update(ctx *gin.Context)
 	Delete(ctx *gin.Context)
+	CalculateTotalCost(ctx *gin.Context)
 }
 
 type SubscriptionHandler struct {
@@ -198,4 +199,29 @@ func (h *SubscriptionHandler) Delete(ctx *gin.Context) {
 	}
 
 	ctx.Status(http.StatusOK)
+}
+
+func (h *SubscriptionHandler) CalculateTotalCost(ctx *gin.Context) {
+	var request requests.CalculateTotalCostRequest
+
+	if err := ctx.ShouldBindQuery(&request); err != nil {
+		log.Printf("Error binding query parameters: %v", err)
+		ctx.JSON(http.StatusBadRequest, gin.H{
+			"error": err.Error(),
+		})
+		return
+	}
+
+	total_cost, err := h.Repository.CalculateTotalCost(request.UserID, request.ServiceName, request.PeriodStart, request.PeriodEnd)
+	if err != nil {
+		log.Printf("Error calculating total cost: %v", err)
+		ctx.JSON(http.StatusInternalServerError, gin.H{
+			"error": "Error calculating total cost",
+		})
+		return
+	}
+
+	ctx.JSON(http.StatusOK, responses.TotalCostResponse{
+		TotalCost: total_cost,
+	})
 }

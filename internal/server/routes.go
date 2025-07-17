@@ -24,4 +24,5 @@ func (app *App) LoadSubscriptionRoutes(router *gin.RouterGroup) {
 	router.GET("/:id", subscription_handler.GetByID)
 	router.DELETE("/:id", subscription_handler.Delete)
 	router.PUT("/:id", subscription_handler.Update)
+	router.GET("/total", subscription_handler.CalculateTotalCost)
 }
