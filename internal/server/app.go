@@ -2,9 +2,10 @@ package server
 
 import (
 	"effective-mobile/online-subscriptions/internal/database"
+	"effective-mobile/online-subscriptions/internal/handlers"
+	"effective-mobile/online-subscriptions/internal/repositories"
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
-	"gorm.io/gorm"
 )
 
 type AppInterface interface {
@@ -13,8 +14,8 @@ type AppInterface interface {
 }
 
 type App struct {
-	Router      *gin.Engine
-	Postgres_db *gorm.DB
+	Router              *gin.Engine
+	SubscriptionHandler handlers.SubscriptionHandlerInterface
 }
 
 func New() *App {
@@ -25,8 +26,11 @@ func New() *App {
 
 	db := database.Connect()
 
+	subscription_repository := repositories.NewSubscriptionRepository(db)
+	subscription_handler := handlers.NewSubscriptionHandler(subscription_repository)
+
 	app := &App{
-		Postgres_db: db,
+		SubscriptionHandler: subscription_handler,
 	}
 
 	app.LoadRoutes()
