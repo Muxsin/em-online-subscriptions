@@ -5,6 +5,7 @@ import (
 	"effective-mobile/online-subscriptions/internal/dto/responses"
 	"effective-mobile/online-subscriptions/internal/models"
 	"effective-mobile/online-subscriptions/internal/repositories"
+
 	"github.com/gin-gonic/gin"
 	"log"
 	"net/http"
@@ -30,6 +31,16 @@ func NewSubscriptionHandler(repository repositories.SubscriptionRepositoryInterf
 	}
 }
 
+// @Summary Create a new subscription
+// @Description Creates a new online subscription.
+// @Tags Subscriptions
+// @Accept json
+// @Produce json
+// @Param request body requests.CreateSubscriptionRequest true "Subscription creation details"
+// @Success 201 {object} responses.SubscriptionResponse "Subscription created successfully"
+// @Failure 400 {object} responses.ErrorResponse "Invalid request payload"
+// @Failure 500 {object} responses.ErrorResponse "Internal server error"
+// @Router /subscriptions [post]
 func (h *SubscriptionHandler) Create(ctx *gin.Context) {
 	var request requests.CreateSubscriptionRequest
 
@@ -38,6 +49,15 @@ func (h *SubscriptionHandler) Create(ctx *gin.Context) {
 
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"error": err.Error(),
+		})
+		return
+	}
+
+	_, err := time.Parse(requests.MM_YYYY_FORMAT, request.StartDate)
+	if err != nil {
+		log.Printf("Invalid StartDate format: %v", err)
+		ctx.JSON(http.StatusBadRequest, gin.H{
+			"error": "Invalid StartDate format. Expected MM-YYYY (e.g., 07-2025).",
 		})
 		return
 	}
@@ -72,6 +92,13 @@ func (h *SubscriptionHandler) Create(ctx *gin.Context) {
 	ctx.JSON(http.StatusCreated, response)
 }
 
+// @Summary Get all subscriptions
+// @Description Retrieves a list of all online subscriptions.
+// @Tags Subscriptions
+// @Produce json
+// @Success 200 {array} responses.SubscriptionResponse "List of subscriptions retrieved successfully"
+// @Failure 500 {object} responses.ErrorResponse "Internal server error"
+// @Router /subscriptions [get]
 func (h *SubscriptionHandler) List(ctx *gin.Context) {
 	products, err := h.Repository.List()
 
@@ -101,6 +128,15 @@ func (h *SubscriptionHandler) List(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, response)
 }
 
+// @Summary Get subscription by ID
+// @Description Retrieves a single online subscription by its ID.
+// @Tags Subscriptions
+// @Produce json
+// @Param id path string true "Subscription ID"
+// @Success 200 {object} responses.SubscriptionResponse "Subscription retrieved successfully"
+// @Failure 404 {object} responses.ErrorResponse "Subscription not found"
+// @Failure 500 {object} responses.ErrorResponse "Internal server error"
+// @Router /subscriptions/{id} [get]
 func (h *SubscriptionHandler) GetByID(ctx *gin.Context) {
 	product, err := h.Repository.GetByID(ctx.Param("id"))
 
@@ -126,6 +162,18 @@ func (h *SubscriptionHandler) GetByID(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, response)
 }
 
+// @Summary Update an existing subscription
+// @Description Updates details of an existing subscription by ID.
+// @Tags Subscriptions
+// @Accept json
+// @Produce json
+// @Param id path string true "Subscription ID"
+// @Param request body requests.UpdateSubscriptionRequest true "Subscription update details"
+// @Success 200 {object} responses.SubscriptionResponse "Subscription updated successfully"
+// @Failure 400 {object} responses.ErrorResponse "Invalid request payload or parameters"
+// @Failure 404 {object} responses.ErrorResponse "Subscription not found"
+// @Failure 500 {object} responses.ErrorResponse "Internal server error"
+// @Router /subscriptions/{id} [put]
 func (h *SubscriptionHandler) Update(ctx *gin.Context) {
 	subscription, err := h.Repository.GetByID(ctx.Param("id"))
 
@@ -177,6 +225,14 @@ func (h *SubscriptionHandler) Update(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, response)
 }
 
+// @Summary Delete a subscription
+// @Description Deletes an online subscription by its ID.
+// @Tags Subscriptions
+// @Param id path string true "Subscription ID"
+// @Success 200 "Subscription deleted successfully"
+// @Failure 404 {object} responses.ErrorResponse "Subscription not found"
+// @Failure 500 {object} responses.ErrorResponse "Internal server error"
+// @Router /subscriptions/{id} [delete]
 func (h *SubscriptionHandler) Delete(ctx *gin.Context) {
 	subscription, err := h.Repository.GetByID(ctx.Param("id"))
 
@@ -201,6 +257,19 @@ func (h *SubscriptionHandler) Delete(ctx *gin.Context) {
 	ctx.Status(http.StatusOK)
 }
 
+// @Summary Calculate total cost of subscriptions
+// @Description Calculates the total cost of subscriptions based on user ID, service name, and a period.
+// @Tags Subscriptions
+// @Accept json
+// @Produce json
+// @Param user_id query string false "User ID to filter by" format(uuid)
+// @Param service_name query string false "Service name to filter by (case-insensitive) (Yandex Plus)"
+// @Param period_start query string false "Start date of the period (RFC3339 format, e.g., 2025-01-01T00:00:00Z)" format(date-time)
+// @Param period_end query string false "End date of the period (RFC3339 format, e.g., 2025-12-31T23:59:59Z)" format(date-time)
+// @Success 200 {object} responses.TotalCostResponse "Total cost calculated successfully"
+// @Failure 400 {object} responses.ErrorResponse "Bad request (e.g., invalid query parameters)"
+// @Failure 500 {object} responses.ErrorResponse "Internal server error"
+// @Router /subscriptions/total [get]
 func (h *SubscriptionHandler) CalculateTotalCost(ctx *gin.Context) {
 	var request requests.CalculateTotalCostRequest
 

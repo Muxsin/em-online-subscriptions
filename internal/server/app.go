@@ -6,6 +6,9 @@ import (
 	"effective-mobile/online-subscriptions/internal/repositories"
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
+
+	swaggerFiles "github.com/swaggo/files"
+	ginSwagger "github.com/swaggo/gin-swagger"
 )
 
 type AppInterface interface {
@@ -39,6 +42,8 @@ func New() *App {
 }
 
 func (app *App) Run() {
+	app.Router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
+
 	err := app.Router.Run()
 	if err != nil {
 		panic(err)

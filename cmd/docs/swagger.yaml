@@ -1,0 +1,314 @@
+basePath: /
+definitions:
+  requests.CreateSubscriptionRequest:
+    properties:
+      end_date:
+        description: |-
+          Optional end date of the subscription in RFC3339 format.
+          @example 2026-07-31T00:00:00Z
+        type: string
+      price:
+        description: |-
+          Price of the subscription.
+          @example 400
+        type: integer
+      service_name:
+        description: |-
+          Name of the subscription service.
+          @example Yandex Plus
+        type: string
+      start_date:
+        description: |-
+          Start date of the subscription in "MM-YYYY" format.
+          @example 07-2025
+        type: string
+      user_id:
+        description: |-
+          User ID associated with the subscription.
+          @example 60601fee-2bf1-4721-ae6f-7636e79a0cba
+        type: string
+    required:
+    - price
+    - service_name
+    - start_date
+    - user_id
+    type: object
+  requests.UpdateSubscriptionRequest:
+    properties:
+      end_date:
+        description: |-
+          Optional end date of the subscription in RFC3339 format.
+          @example 2026-08-31T00:00:00Z
+        type: string
+      price:
+        description: |-
+          Price of the subscription.
+          @example 450
+        type: integer
+      service_name:
+        description: |-
+          Name of the subscription service.
+          @example Yandex Plus
+        type: string
+      start_date:
+        description: |-
+          Start date of the subscription in "MM-YYYY" format.
+          @example 07-2025
+        type: string
+      user_id:
+        description: |-
+          User ID associated with the subscription.
+          @example 60601fee-2bf1-4721-ae6f-7636e79a0cba
+        type: string
+    required:
+    - price
+    - service_name
+    - start_date
+    - user_id
+    type: object
+  responses.ErrorResponse:
+    properties:
+      error:
+        description: |-
+          Message describes the error that occurred.
+          @example "Subscription not found"
+        type: string
+    type: object
+  responses.SubscriptionResponse:
+    properties:
+      created_at:
+        description: |-
+          Creation timestamp of the subscription in RFC3339 format.
+          @example 2025-07-17T10:30:00Z
+        type: string
+      end_date:
+        description: |-
+          Optional end date of the subscription in RFC3339 format.
+          @example 2026-07-31T00:00:00Z
+        type: string
+      id:
+        description: |-
+          ID of the subscription.
+          @example 1
+        type: integer
+      price:
+        description: |-
+          Price of the subscription.
+          @example 400
+        type: integer
+      service_name:
+        description: |-
+          Name of the subscription service.
+          @example Yandex Plus
+        type: string
+      start_date:
+        description: |-
+          Start date of the subscription in "MM-YYYY" format.
+          @example 07-2025
+        type: string
+      user_id:
+        description: |-
+          User ID associated with the subscription.
+          @example 60601fee-2bf1-4721-ae6f-7636e79a0cba
+        type: string
+    type: object
+  responses.TotalCostResponse:
+    properties:
+      total_cost:
+        description: |-
+          TotalCost is the aggregated sum of subscription prices.
+          @example 1200
+        type: integer
+    type: object
+host: localhost:8080
+info:
+  contact: {}
+  description: This is a sample subscription service API.
+  license:
+    name: Apache 2.0
+    url: http://www.apache.org/licenses/LICENSE-2.0.html
+  title: Subscription Service API
+  version: "1.0"
+paths:
+  /subscriptions:
+    get:
+      description: Retrieves a list of all online subscriptions.
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: List of subscriptions retrieved successfully
+          schema:
+            items:
+              $ref: '#/definitions/responses.SubscriptionResponse'
+            type: array
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/responses.ErrorResponse'
+      summary: Get all subscriptions
+      tags:
+      - Subscriptions
+    post:
+      consumes:
+      - application/json
+      description: Creates a new online subscription.
+      parameters:
+      - description: Subscription creation details
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/requests.CreateSubscriptionRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Subscription created successfully
+          schema:
+            $ref: '#/definitions/responses.SubscriptionResponse'
+        "400":
+          description: Invalid request payload
+          schema:
+            $ref: '#/definitions/responses.ErrorResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/responses.ErrorResponse'
+      summary: Create a new subscription
+      tags:
+      - Subscriptions
+  /subscriptions/{id}:
+    delete:
+      description: Deletes an online subscription by its ID.
+      parameters:
+      - description: Subscription ID
+        in: path
+        name: id
+        required: true
+        type: string
+      responses:
+        "200":
+          description: Subscription deleted successfully
+        "404":
+          description: Subscription not found
+          schema:
+            $ref: '#/definitions/responses.ErrorResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/responses.ErrorResponse'
+      summary: Delete a subscription
+      tags:
+      - Subscriptions
+    get:
+      description: Retrieves a single online subscription by its ID.
+      parameters:
+      - description: Subscription ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Subscription retrieved successfully
+          schema:
+            $ref: '#/definitions/responses.SubscriptionResponse'
+        "404":
+          description: Subscription not found
+          schema:
+            $ref: '#/definitions/responses.ErrorResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/responses.ErrorResponse'
+      summary: Get subscription by ID
+      tags:
+      - Subscriptions
+    put:
+      consumes:
+      - application/json
+      description: Updates details of an existing subscription by ID.
+      parameters:
+      - description: Subscription ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Subscription update details
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/requests.UpdateSubscriptionRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Subscription updated successfully
+          schema:
+            $ref: '#/definitions/responses.SubscriptionResponse'
+        "400":
+          description: Invalid request payload or parameters
+          schema:
+            $ref: '#/definitions/responses.ErrorResponse'
+        "404":
+          description: Subscription not found
+          schema:
+            $ref: '#/definitions/responses.ErrorResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/responses.ErrorResponse'
+      summary: Update an existing subscription
+      tags:
+      - Subscriptions
+  /subscriptions/total:
+    get:
+      consumes:
+      - application/json
+      description: Calculates the total cost of subscriptions based on user ID, service
+        name, and a period.
+      parameters:
+      - description: User ID to filter by
+        format: uuid
+        in: query
+        name: user_id
+        type: string
+      - description: Service name to filter by (case-insensitive) (Yandex Plus)
+        in: query
+        name: service_name
+        type: string
+      - description: Start date of the period (RFC3339 format, e.g., 2025-01-01T00:00:00Z)
+        format: date-time
+        in: query
+        name: period_start
+        type: string
+      - description: End date of the period (RFC3339 format, e.g., 2025-12-31T23:59:59Z)
+        format: date-time
+        in: query
+        name: period_end
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Total cost calculated successfully
+          schema:
+            $ref: '#/definitions/responses.TotalCostResponse'
+        "400":
+          description: Bad request (e.g., invalid query parameters)
+          schema:
+            $ref: '#/definitions/responses.ErrorResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/responses.ErrorResponse'
+      summary: Calculate total cost of subscriptions
+      tags:
+      - Subscriptions
+schemes:
+- http
+swagger: "2.0"
